@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Adaptive Interview App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Adaptive Interview Facilitator</h1>
+      <p class="tagline">Guide structured, fair interviews with adaptive questioning.</p>
+    </header>
+
+    <main id="app" class="app" aria-live="polite">
+      <section id="intro-panel" class="panel active" aria-labelledby="intro-heading">
+        <h2 id="intro-heading">Welcome</h2>
+        <p>
+          This lightweight web app walks you through an adaptive interview. Scores and notes
+          are stored locally on this device so you can pause and resume at any time.
+        </p>
+        <ol class="instructions">
+          <li>Review the rubric for each question.</li>
+          <li>Capture a rating with <strong>1</strong>, <strong>2</strong>, or <strong>3</strong>, or use the buttons.</li>
+          <li>Record optional notes to support the final recommendation.</li>
+        </ol>
+        <div class="actions">
+          <button id="start-interview" class="primary">Start fresh interview</button>
+          <button id="resume-interview" class="secondary" hidden>Resume last session</button>
+        </div>
+      </section>
+
+      <section id="question-panel" class="panel" aria-labelledby="question-title" hidden>
+        <header class="panel-header">
+          <p id="question-category" class="question-category"></p>
+          <h2 id="question-title"></h2>
+        </header>
+        <details class="rubric" id="rubric-details">
+          <summary>View scoring rubric</summary>
+          <dl id="rubric-content"></dl>
+        </details>
+        <form id="response-form" class="response-form">
+          <fieldset>
+            <legend class="sr-only">Select a rating</legend>
+            <div class="rating-group">
+              <button type="button" class="rating" data-rating="strong">
+                <span aria-hidden="true">3</span>
+                <span class="label">Strong</span>
+              </button>
+              <button type="button" class="rating" data-rating="competent">
+                <span aria-hidden="true">2</span>
+                <span class="label">Competent</span>
+              </button>
+              <button type="button" class="rating" data-rating="developing">
+                <span aria-hidden="true">1</span>
+                <span class="label">Developing</span>
+              </button>
+            </div>
+          </fieldset>
+          <label class="notes-label" for="notes-input">Interview notes</label>
+          <textarea id="notes-input" name="notes" rows="5" placeholder="Capture evidence, quotes, and observations"></textarea>
+          <div class="actions">
+            <button type="button" id="save-response" class="primary">Save and continue</button>
+            <button type="button" id="back-track" class="secondary">Back</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="summary-panel" class="panel" aria-labelledby="summary-heading" hidden>
+        <h2 id="summary-heading">Interview summary</h2>
+        <p class="summary-intro">Review the rubric outcomes before finalizing your recommendation.</p>
+        <ul id="summary-list" class="summary-list"></ul>
+        <div class="actions">
+          <button id="download-summary" class="secondary">Download summary</button>
+          <button id="reset-session" class="danger">Reset interview</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>
+        Works fully offline after the first load. Host on GitHub Pages, Netlify, or embed using an iframe.
+      </p>
+    </footer>
+
+    <template id="summary-item-template">
+      <li>
+        <h3></h3>
+        <p class="summary-rating"></p>
+        <p class="summary-notes"></p>
+      </li>
+    </template>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
