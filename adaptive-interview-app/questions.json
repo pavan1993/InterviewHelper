@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "role": "Full-stack Engineer",
+    "description": "Adaptive rubric for evaluating problem solving, technical depth, and collaboration.",
+    "startQuestion": "q1"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "category": "Discovery",
+      "difficulty": "foundation",
+      "prompt": "Tell me about the most ambiguous product request you have turned into a shipped solution.",
+      "rubric": {
+        "strong": "Frames the problem, clarifies impact, and drives structured discovery with multiple stakeholders.",
+        "competent": "Identifies requirements, asks clarifying questions, and delivers a working solution with minor gaps.",
+        "developing": "Focuses on implementing instructions without probing for clarity or business impact."
+      },
+      "followUps": {
+        "strong": "q2",
+        "competent": "q2",
+        "developing": "q1_followup"
+      }
+    },
+    {
+      "id": "q1_followup",
+      "category": "Collaboration",
+      "difficulty": "foundation",
+      "prompt": "Walk me through how you keep stakeholders aligned when requirements are changing daily.",
+      "rubric": {
+        "strong": "Runs short feedback loops, confirms decisions asynchronously, and documents trade-offs for visibility.",
+        "competent": "Shares updates during stand-ups or emails but lacks proactive alignment artifacts.",
+        "developing": "Waits for others to surface misalignment and communicates reactively."
+      },
+      "followUps": {
+        "strong": "q2",
+        "competent": "q2",
+        "developing": "q2"
+      }
+    },
+    {
+      "id": "q2",
+      "category": "Technical Depth",
+      "difficulty": "core",
+      "prompt": "Describe a challenging technical decision you made recently. How did you evaluate the options?",
+      "rubric": {
+        "strong": "Quantifies trade-offs, references measurements, and considers long-term maintainability.",
+        "competent": "Explains pros and cons qualitatively and selects a reasonable approach.",
+        "developing": "Picks a solution quickly without considering alternatives or data."
+      },
+      "followUps": {
+        "strong": "q3_strategic",
+        "competent": "q3_delivery",
+        "developing": "q2_followup"
+      }
+    },
+    {
+      "id": "q2_followup",
+      "category": "Technical Depth",
+      "difficulty": "foundation",
+      "prompt": "What signals do you watch during a launch to know whether the system is healthy?",
+      "rubric": {
+        "strong": "Defines quantitative dashboards, sets alerts, and rehearses rollback criteria.",
+        "competent": "Monitors a few key metrics and relies on team alerts when needed.",
+        "developing": "Depends on manual testing or customer reports without telemetry."
+      },
+      "followUps": {
+        "strong": "q3_delivery",
+        "competent": "q3_delivery",
+        "developing": "q3_delivery"
+      }
+    },
+    {
+      "id": "q3_delivery",
+      "category": "Execution",
+      "difficulty": "core",
+      "prompt": "Share a time you had to renegotiate scope to hit a fixed deadline.",
+      "rubric": {
+        "strong": "Forecasts risk early, socializes trade-offs with data, and aligns stakeholders on a revised plan.",
+        "competent": "Communicates risk once discovered and collaborates on a mitigation plan.",
+        "developing": "Escalates late or simply works longer hours without addressing root cause."
+      },
+      "followUps": {
+        "default": null
+      }
+    },
+    {
+      "id": "q3_strategic",
+      "category": "Leadership",
+      "difficulty": "advanced",
+      "prompt": "How do you balance building for today with laying the groundwork for future scale?",
+      "rubric": {
+        "strong": "Articulates north-star architecture, quantifies cost of delay, and sequences milestones for compounding value.",
+        "competent": "Plans one or two releases ahead and guards against obvious scaling pitfalls.",
+        "developing": "Builds for immediate needs without articulating longer-term considerations."
+      },
+      "followUps": {
+        "default": null
+      }
+    }
+  ]
+}
