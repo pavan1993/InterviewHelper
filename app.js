@@ -7,7 +7,7 @@
   const startButton = document.getElementById("start-interview");
   const resumeButton = document.getElementById("resume-interview");
   const backButton = document.getElementById("back-track");
-  const saveButton = document.getElementById("save-response");
+  const nextButton = document.getElementById("next-question");
   const resetButton = document.getElementById("reset-session");
   const downloadButton = document.getElementById("download-summary");
   const topicSelect = document.getElementById("topic-select");
@@ -15,9 +15,9 @@
   const questionTitle = document.getElementById("question-title");
   const questionCategory = document.getElementById("question-category");
   const notesInput = document.getElementById("notes-input");
-  const rubricList = document.getElementById("rubric-content");
+  const expectedList = document.getElementById("expected-responses");
   const summaryList = document.getElementById("summary-list");
-  const ratingButtons = Array.from(document.querySelectorAll(".rating"));
+  const gradeButtons = Array.from(document.querySelectorAll(".grade-option"));
   const ALL_TOPICS_VALUE = "__all__";
 
   const panels = [introPanel, questionPanel, summaryPanel];
@@ -29,7 +29,7 @@
     currentId: null,
     history: [],
     responses: [],
-    selectedRating: null,
+    selectedGrade: null,
     selectedTopics: [],
     selectAllTopics: true,
   };
@@ -61,14 +61,30 @@
     });
   }
 
-  function buildRubric(rubric) {
-    rubricList.innerHTML = "";
-    Object.entries(rubric).forEach(([level, description]) => {
-      const dt = document.createElement("dt");
-      dt.textContent = capitalize(level);
-      const dd = document.createElement("dd");
-      dd.textContent = description;
-      rubricList.append(dt, dd);
+  function buildExpectedResponses(descriptors = {}) {
+    if (!expectedList) return;
+    expectedList.innerHTML = "";
+    const entries = Object.entries(descriptors)
+      .map(([grade, description]) => ({ grade: Number(grade), description }))
+      .filter((entry) => !Number.isNaN(entry.grade))
+      .sort((a, b) => b.grade - a.grade);
+
+    if (!entries.length) {
+      const empty = document.createElement("li");
+      empty.textContent = "No descriptors available for this question.";
+      expectedList.appendChild(empty);
+      return;
+    }
+
+    entries.forEach(({ grade, description }) => {
+      const li = document.createElement("li");
+      const badge = document.createElement("span");
+      badge.className = "grade-chip";
+      badge.textContent = String(grade);
+      const text = document.createElement("p");
+      text.textContent = description;
+      li.append(badge, text);
+      expectedList.appendChild(li);
     });
   }
 
@@ -80,21 +96,61 @@
     return state.questions.get(id) || null;
   }
 
-  function setRating(rating) {
-    state.selectedRating = rating;
-    ratingButtons.forEach((btn) => {
-      const isActive = btn.dataset.rating === rating;
+  function setGrade(grade) {
+    state.selectedGrade = grade;
+    gradeButtons.forEach((btn) => {
+      const isActive = btn.dataset.grade === grade;
       btn.dataset.active = String(isActive);
       btn.setAttribute("aria-pressed", String(isActive));
     });
   }
 
-  function resetRating() {
-    state.selectedRating = null;
-    ratingButtons.forEach((btn) => {
+  function resetGrade() {
+    state.selectedGrade = null;
+    gradeButtons.forEach((btn) => {
       btn.dataset.active = "false";
       btn.setAttribute("aria-pressed", "false");
     });
+  }
+
+  function extractGradeValue(response) {
+    if (!response || typeof response !== "object") return null;
+
+    if (response.grade !== undefined && response.grade !== null) {
+      const numeric = Number(response.grade);
+      if (!Number.isNaN(numeric)) {
+        return numeric;
+      }
+    }
+
+    if (response.rating) {
+      const map = {
+        strong: 4,
+        competent: 3,
+        developing: 2,
+      };
+      const lookup = map[String(response.rating).toLowerCase()];
+      if (lookup !== undefined) {
+        return lookup;
+      }
+    }
+
+    return null;
+  }
+
+  function upgradeLegacyResponses(responses = []) {
+    if (!Array.isArray(responses)) return [];
+    return responses
+      .filter((entry) => entry && typeof entry === "object")
+      .map((entry) => {
+        const { rating, ...rest } = entry;
+        const grade = extractGradeValue(entry);
+        return {
+          ...rest,
+          topic: rest.topic ?? rest.category ?? null,
+          grade: grade !== null ? grade : null,
+        };
+      });
   }
 
   function extractTopics(questions = []) {
@@ -214,15 +270,24 @@
 
     questionTitle.textContent = question.prompt;
     questionCategory.textContent = `${question.category} • ${capitalize(question.difficulty)}`;
-    buildRubric(question.rubric);
+    buildExpectedResponses(question.scoreDescriptors || {});
 
     const existingResponse = state.responses.find((entry) => entry.id === question.id);
     if (existingResponse) {
-      setRating(existingResponse.rating);
-      notesInput.value = existingResponse.notes || "";
+      const grade = extractGradeValue(existingResponse);
+      if (grade !== null) {
+        setGrade(String(grade));
+      } else {
+        resetGrade();
+      }
+      if (notesInput) {
+        notesInput.value = existingResponse.notes || "";
+      }
     } else {
-      resetRating();
-      notesInput.value = "";
+      resetGrade();
+      if (notesInput) {
+        notesInput.value = "";
+      }
     }
 
     showPanel(questionPanel);
@@ -273,7 +338,7 @@
     if (reset) {
       state.history = [];
       state.responses = [];
-      state.selectedRating = null;
+      state.selectedGrade = null;
       state.currentId = state.meta?.startQuestion ?? null;
       clearPersistedState();
     }
@@ -294,7 +359,7 @@
     if (!stored) return;
     state.meta = stored.meta;
     state.history = stored.history || [];
-    state.responses = stored.responses || [];
+    state.responses = upgradeLegacyResponses(stored.responses);
     state.currentId = stored.currentId;
     state.selectedTopics = Array.isArray(stored.selectedTopics) ? stored.selectedTopics : [...state.topics];
     state.selectAllTopics = typeof stored.selectAllTopics === "boolean" ? stored.selectAllTopics : true;
@@ -303,9 +368,9 @@
     renderQuestion(getQuestion(state.currentId));
   }
 
-  function handleSave() {
-    if (!state.selectedRating) {
-      announce("Select a rating before continuing.");
+  function handleNext() {
+    if (state.selectedGrade === null) {
+      announce("Select a grade before continuing.");
       return;
     }
 
@@ -315,13 +380,14 @@
       return;
     }
 
-    const nextId = resolveNextQuestion(question, state.selectedRating);
-    const notes = notesInput.value.trim();
+    const nextId = resolveNextQuestion(question, state.selectedGrade);
+    const notes = notesInput ? notesInput.value.trim() : "";
     const existingIndex = state.responses.findIndex((entry) => entry.id === question.id);
     const payload = {
       id: question.id,
-      rating: state.selectedRating,
+      grade: Number(state.selectedGrade),
       notes,
+      topic: question.category,
       category: question.category,
       prompt: question.prompt,
       difficulty: question.difficulty,
@@ -351,15 +417,18 @@
       return;
     }
 
-    resetRating();
-    notesInput.value = "";
+    resetGrade();
+    if (notesInput) {
+      notesInput.value = "";
+    }
     renderQuestion(nextQuestion);
     persistState();
   }
 
-  function resolveNextQuestion(question, rating) {
+  function resolveNextQuestion(question, grade) {
     const map = question.followUps || {};
-    return map[rating] ?? map.default ?? null;
+    const key = String(grade);
+    return map[key] ?? map.default ?? null;
   }
 
   function goBack() {
@@ -391,7 +460,10 @@
       state.responses.forEach((entry) => {
         const fragment = template.content.cloneNode(true);
         fragment.querySelector("h3").textContent = entry.prompt;
-        fragment.querySelector(".summary-rating").textContent = `Outcome: ${capitalize(entry.rating)}`;
+        const gradeLabel = entry.grade !== null && entry.grade !== undefined && !Number.isNaN(entry.grade)
+          ? entry.grade
+          : "—";
+        fragment.querySelector(".summary-rating").textContent = `Grade: ${gradeLabel}`;
         fragment.querySelector(".summary-notes").textContent = entry.notes || "No notes captured.";
         summaryList.appendChild(fragment);
       });
@@ -408,8 +480,8 @@
       "",
       ...state.responses.map((entry, index) => {
         return [
-          `${index + 1}. ${entry.prompt} (${entry.category}, ${capitalize(entry.difficulty)})`,
-          `   Rating: ${capitalize(entry.rating)}`,
+          `${index + 1}. ${entry.prompt} (${entry.topic ?? entry.category}, ${capitalize(entry.difficulty)})`,
+          `   Grade: ${entry.grade !== null && entry.grade !== undefined && !Number.isNaN(entry.grade) ? entry.grade : "—"}`,
           `   Notes: ${entry.notes || "(none)"}`,
           "",
         ].join("\n");
@@ -431,10 +503,12 @@
     state.currentId = state.meta?.startQuestion ?? null;
     state.history = [];
     state.responses = [];
-    state.selectedRating = null;
+    state.selectedGrade = null;
     state.selectedTopics = [...state.topics];
     state.selectAllTopics = true;
-    notesInput.value = "";
+    if (notesInput) {
+      notesInput.value = "";
+    }
     syncTopicSelect();
     clearTopicError();
     clearPersistedState();
@@ -462,7 +536,9 @@
   function registerEvents() {
     startButton.addEventListener("click", handleStartButtonClick);
     resumeButton.addEventListener("click", resumeInterview);
-    saveButton.addEventListener("click", handleSave);
+    if (nextButton) {
+      nextButton.addEventListener("click", handleNext);
+    }
     backButton.addEventListener("click", goBack);
     resetButton.addEventListener("click", resetInterview);
     downloadButton.addEventListener("click", downloadSummary);
@@ -479,38 +555,28 @@
       });
     }
 
-    ratingButtons.forEach((btn) => {
-      btn.addEventListener("click", () => setRating(btn.dataset.rating));
+    gradeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setGrade(btn.dataset.grade);
+        announce(`Grade ${btn.dataset.grade} selected`);
+      });
     });
 
     document.addEventListener("keydown", (event) => {
       if (questionPanel.hidden) return;
-      if (["1", "2", "3"].includes(event.key)) {
+      const target = event.target;
+      const isTypingContext = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+
+      if (!isTypingContext && ["0", "1", "2", "3", "4"].includes(event.key)) {
         event.preventDefault();
-        const rating = keyToRating(event.key);
-        if (rating) {
-          setRating(rating);
-          announce(`${capitalize(rating)} selected`);
-        }
+        setGrade(event.key);
+        announce(`Grade ${event.key} selected`);
       }
-      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      if (event.key === "Enter" && !event.shiftKey && !isTypingContext) {
         event.preventDefault();
-        handleSave();
+        handleNext();
       }
     });
-  }
-
-  function keyToRating(key) {
-    switch (key) {
-      case "3":
-        return "strong";
-      case "2":
-        return "competent";
-      case "1":
-        return "developing";
-      default:
-        return null;
-    }
   }
 
   async function bootstrap() {
@@ -532,7 +598,7 @@
         state.meta = persisted.meta || state.meta;
         state.currentId = persisted.currentId || state.meta.startQuestion;
         state.history = persisted.history || [];
-        state.responses = persisted.responses || [];
+        state.responses = upgradeLegacyResponses(persisted.responses);
         state.selectedTopics = Array.isArray(persisted.selectedTopics)
           ? [...persisted.selectedTopics]
           : [...state.topics];

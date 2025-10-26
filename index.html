@@ -111,40 +111,36 @@
               <h2 id="question-title"></h2>
             </header>
             <div class="question-body">
-              <details class="rubric" id="rubric-details">
-                <summary>Scoring rubric</summary>
-                <p class="rubric-hint">Focus on evidence. Use the rubric to anchor your rating.</p>
-                <dl id="rubric-content"></dl>
-              </details>
-              <section class="guidance">
-                <h3>Follow-up ideas</h3>
-                <ul class="guidance-list">
-                  <li>Ask for a recent project that illustrates their approach.</li>
-                  <li>Probe trade-offs, risks, and stakeholder alignment.</li>
-                  <li>Clarify scope: team size, timeline, and constraints.</li>
-                </ul>
+              <section class="expected-responses" aria-label="Expected responses by grade">
+                <h3>Expected responses by grade (0–4)</h3>
+                <ul id="expected-responses" class="expected-list"></ul>
               </section>
             </div>
           </article>
 
           <section class="grading-controls" aria-label="Grade and capture notes">
-            <fieldset>
-              <legend>Choose a rating (use keys 1-3)</legend>
-              <div class="rating-group">
-                <button type="button" class="rating" data-rating="strong">
-                  <span aria-hidden="true">3</span>
-                  <span class="label">Strong</span>
-                  <span class="description">Exceeds expectations with strategic depth.</span>
+            <fieldset class="grade-fieldset">
+              <legend>Choose a grade (use keys 0-4)</legend>
+              <div class="grade-options" role="group" aria-label="Grade options">
+                <button type="button" class="grade-option" data-grade="4" aria-label="Grade 4" data-active="false" aria-pressed="false">
+                  <span class="grade-value">4</span>
+                  <span class="grade-caption">Exceptional</span>
                 </button>
-                <button type="button" class="rating" data-rating="competent">
-                  <span aria-hidden="true">2</span>
-                  <span class="label">Competent</span>
-                  <span class="description">Solid, role-ready response.</span>
+                <button type="button" class="grade-option" data-grade="3" aria-label="Grade 3" data-active="false" aria-pressed="false">
+                  <span class="grade-value">3</span>
+                  <span class="grade-caption">Strong</span>
                 </button>
-                <button type="button" class="rating" data-rating="developing">
-                  <span aria-hidden="true">1</span>
-                  <span class="label">Developing</span>
-                  <span class="description">Needs more clarity or practical detail.</span>
+                <button type="button" class="grade-option" data-grade="2" aria-label="Grade 2" data-active="false" aria-pressed="false">
+                  <span class="grade-value">2</span>
+                  <span class="grade-caption">Developing</span>
+                </button>
+                <button type="button" class="grade-option" data-grade="1" aria-label="Grade 1" data-active="false" aria-pressed="false">
+                  <span class="grade-value">1</span>
+                  <span class="grade-caption">Emerging</span>
+                </button>
+                <button type="button" class="grade-option" data-grade="0" aria-label="Grade 0" data-active="false" aria-pressed="false">
+                  <span class="grade-value">0</span>
+                  <span class="grade-caption">Not Demonstrated</span>
                 </button>
               </div>
             </fieldset>
@@ -156,10 +152,10 @@
               placeholder="Capture observations, quotes, red flags, or follow-up items"
             ></textarea>
             <div class="notes-hints">
-              <p><strong>Tip:</strong> Use Cmd/Ctrl + Enter to save and continue.</p>
+              <p><strong>Tip:</strong> Press Enter to move to the next question. Use keys 0–4 to select a grade instantly.</p>
             </div>
             <div class="actions">
-              <button type="button" id="save-response" class="primary">Save and continue</button>
+              <button type="button" id="next-question" class="primary">Next</button>
               <button type="button" id="back-track" class="secondary">Back</button>
             </div>
           </section>
