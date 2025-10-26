@@ -1,303 +1,513 @@
 {
-  "schema": {
-    "topic": "string",
-    "id": "string",
-    "question": "string",
-    "expected_responses": {
-      "0": "string",
-      "1": "string",
-      "2": "string",
-      "3": "string",
-      "4": "string"
-    }
+  "meta": {
+    "version": "2.0.0",
+    "role": "Platform Engineering Candidate",
+    "description": "Topic-aligned rubric spanning core platform engineering competencies.",
+    "startQuestion": "cloud_q1"
   },
   "questions": [
     {
-      "topic": "Cloud Fundamentals",
       "id": "cloud_q1",
-      "question": "How would you explain the shared responsibility model to a non-technical stakeholder?",
-      "expected_responses": {
+      "category": "Cloud Fundamentals",
+      "difficulty": "foundation",
+      "prompt": "How would you explain the shared responsibility model to a non-technical stakeholder?",
+      "rubric": {
+        "strong": "Clearly outlines responsibilities, highlights gray areas, and relates them to risk management decisions.",
+        "competent": "Explains provider and customer obligations with at least one relevant example.",
+        "developing": "Describes high-level split but overlooks practical examples or boundary cases."
+      },
+      "scoreDescriptors": {
         "0": "Cannot describe the concept or confuses it with unrelated ideas.",
         "1": "Mentions security responsibilities but cannot distinguish provider vs. customer roles.",
         "2": "Describes high-level split but overlooks practical examples or boundary cases.",
         "3": "Explains provider and customer obligations with at least one relevant example.",
         "4": "Clearly outlines responsibilities, highlights gray areas, and relates them to risk management decisions."
+      },
+      "followUps": {
+        "default": "cloud_q2"
       }
     },
     {
-      "topic": "Cloud Fundamentals",
       "id": "cloud_q2",
-      "question": "What factors guide your choice between IaaS, PaaS, and serverless offerings?",
-      "expected_responses": {
+      "category": "Cloud Fundamentals",
+      "difficulty": "core",
+      "prompt": "What factors guide your choice between IaaS, PaaS, and serverless offerings?",
+      "rubric": {
+        "strong": "Evaluates cost, scaling behavior, operational overhead, and long-term maintainability with concrete examples.",
+        "competent": "Discusses workload characteristics, team expertise, and lifecycle considerations when choosing.",
+        "developing": "Identifies basic trade-offs such as control vs. abstraction without context."
+      },
+      "scoreDescriptors": {
         "0": "Does not recognize the service models or their differences.",
         "1": "Names the models but gives vague or incorrect selection criteria.",
         "2": "Identifies basic trade-offs such as control vs. abstraction without context.",
         "3": "Discusses workload characteristics, team expertise, and lifecycle considerations when choosing.",
         "4": "Evaluates cost, scaling behavior, operational overhead, and long-term maintainability with concrete examples."
+      },
+      "followUps": {
+        "default": "cloud_q3"
       }
     },
     {
-      "topic": "Cloud Fundamentals",
       "id": "cloud_q3",
-      "question": "How do you estimate and control cloud consumption costs for a new service?",
-      "expected_responses": {
+      "category": "Cloud Fundamentals",
+      "difficulty": "advanced",
+      "prompt": "How do you estimate and control cloud consumption costs for a new service?",
+      "rubric": {
+        "strong": "Combines design-time estimates, automated budgets, and iterative optimization tied to business metrics.",
+        "competent": "Outlines usage baselining, cost alerts, and regular reviews with stakeholders.",
+        "developing": "Mentions cost dashboards or tagging but lacks actionable process steps."
+      },
+      "scoreDescriptors": {
         "0": "Has no approach for forecasting or monitoring spend.",
         "1": "Suggests manual tracking without mentioning tooling or budget guardrails.",
         "2": "Mentions cost dashboards or tagging but lacks actionable process steps.",
         "3": "Outlines usage baselining, cost alerts, and regular reviews with stakeholders.",
         "4": "Combines design-time estimates, automated budgets, and iterative optimization tied to business metrics."
+      },
+      "followUps": {
+        "default": "k8s_q1"
       }
     },
     {
-      "topic": "Kubernetes",
       "id": "k8s_q1",
-      "question": "How do you decide when to run workloads on Kubernetes versus another container orchestration approach?",
-      "expected_responses": {
+      "category": "Kubernetes",
+      "difficulty": "foundation",
+      "prompt": "How do you decide when to run workloads on Kubernetes versus another container orchestration approach?",
+      "rubric": {
+        "strong": "Applies decision criteria to real scenarios, including governance, multi-tenancy, and lifecycle impacts.",
+        "competent": "Weighs ecosystem maturity, team skills, workload patterns, and operational cost.",
+        "developing": "References portability or scaling but overlooks operational complexity."
+      },
+      "scoreDescriptors": {
         "0": "Cannot describe Kubernetes use cases or alternatives.",
         "1": "States that Kubernetes is standard without evaluating requirements.",
         "2": "References portability or scaling but overlooks operational complexity.",
         "3": "Weighs ecosystem maturity, team skills, workload patterns, and operational cost.",
         "4": "Applies decision criteria to real scenarios, including governance, multi-tenancy, and lifecycle impacts."
+      },
+      "followUps": {
+        "default": "k8s_q2"
       }
     },
     {
-      "topic": "Kubernetes",
       "id": "k8s_q2",
-      "question": "Describe your approach to designing a multi-tenant Kubernetes cluster for isolation and resource fairness.",
-      "expected_responses": {
+      "category": "Kubernetes",
+      "difficulty": "core",
+      "prompt": "Describe your approach to designing a multi-tenant Kubernetes cluster for isolation and resource fairness.",
+      "rubric": {
+        "strong": "Adds governance processes, observability hooks, and continuous validation of tenant boundaries.",
+        "competent": "Explains namespaces, resource quotas, network policies, and admission controls for isolation.",
+        "developing": "Discusses quotas or network policies without covering scheduling impacts."
+      },
+      "scoreDescriptors": {
         "0": "Unaware of multi-tenancy concerns or available controls.",
         "1": "Mentions namespaces but not quotas or security boundaries.",
         "2": "Discusses quotas or network policies without covering scheduling impacts.",
         "3": "Explains namespaces, resource quotas, network policies, and admission controls for isolation.",
         "4": "Adds governance processes, observability hooks, and continuous validation of tenant boundaries."
+      },
+      "followUps": {
+        "default": "k8s_q3"
       }
     },
     {
-      "topic": "Kubernetes",
       "id": "k8s_q3",
-      "question": "How do you troubleshoot a pod that repeatedly crashes during startup?",
-      "expected_responses": {
+      "category": "Kubernetes",
+      "difficulty": "advanced",
+      "prompt": "How do you troubleshoot a pod that repeatedly crashes during startup?",
+      "rubric": {
+        "strong": "Correlates container logs, node conditions, resource constraints, and recent deployments to identify root cause.",
+        "competent": "Uses logs, events, health probes, and configuration review to isolate the failure.",
+        "developing": "Mentions checking logs but not cluster events or configuration issues."
+      },
+      "scoreDescriptors": {
         "0": "Does not know where to begin or which tools to use.",
         "1": "Suggests restarting the pod without investigation steps.",
         "2": "Mentions checking logs but not cluster events or configuration issues.",
         "3": "Uses logs, events, health probes, and configuration review to isolate the failure.",
         "4": "Correlates container logs, node conditions, resource constraints, and recent deployments to identify root cause."
+      },
+      "followUps": {
+        "default": "net_q1"
       }
     },
     {
-      "topic": "Networking",
       "id": "net_q1",
-      "question": "How do you verify connectivity and latency between two services in different subnets?",
-      "expected_responses": {
+      "category": "Networking",
+      "difficulty": "foundation",
+      "prompt": "How do you verify connectivity and latency between two services in different subnets?",
+      "rubric": {
+        "strong": "Adds synthetic monitoring, packet captures, and performance baselines to validate end-to-end behavior.",
+        "competent": "Combines connectivity tests, route inspection, and security rule review.",
+        "developing": "Mentions ping or traceroute but omits routing and firewall checks."
+      },
+      "scoreDescriptors": {
         "0": "Does not know which tools or diagnostics to use.",
         "1": "Suggests a single test such as ping without considering policies.",
         "2": "Mentions ping or traceroute but omits routing and firewall checks.",
         "3": "Combines connectivity tests, route inspection, and security rule review.",
         "4": "Adds synthetic monitoring, packet captures, and performance baselines to validate end-to-end behavior."
+      },
+      "followUps": {
+        "default": "net_q2"
       }
     },
     {
-      "topic": "Networking",
       "id": "net_q2",
-      "question": "What steps do you take to design IP address management for a hybrid environment?",
-      "expected_responses": {
+      "category": "Networking",
+      "difficulty": "core",
+      "prompt": "What steps do you take to design IP address management for a hybrid environment?",
+      "rubric": {
+        "strong": "Integrates on-prem coordination, automation for assignments, and governance for future integrations.",
+        "competent": "Plans subnetting, avoids overlaps, and documents allocation with room for expansion.",
+        "developing": "Acknowledges private address ranges but lacks segmentation strategy."
+      },
+      "scoreDescriptors": {
         "0": "Unaware of IP planning considerations across environments.",
         "1": "Proposes using defaults without addressing conflicts or growth.",
         "2": "Acknowledges private address ranges but lacks segmentation strategy.",
         "3": "Plans subnetting, avoids overlaps, and documents allocation with room for expansion.",
         "4": "Integrates on-prem coordination, automation for assignments, and governance for future integrations."
+      },
+      "followUps": {
+        "default": "net_q3"
       }
     },
     {
-      "topic": "Networking",
       "id": "net_q3",
-      "question": "How would you secure an API exposed over the public internet?",
-      "expected_responses": {
+      "category": "Networking",
+      "difficulty": "advanced",
+      "prompt": "How would you secure an API exposed over the public internet?",
+      "rubric": {
+        "strong": "Adds threat modeling, abuse detection, and continuous review of security posture.",
+        "competent": "Describes TLS, authentication, authorization, and traffic filtering controls.",
+        "developing": "Mentions TLS and API keys without discussing broader protections."
+      },
+      "scoreDescriptors": {
         "0": "Does not mention authentication or encryption basics.",
         "1": "Suggests using HTTPS but omits access control or rate limiting.",
         "2": "Mentions TLS and API keys without discussing broader protections.",
         "3": "Describes TLS, authentication, authorization, and traffic filtering controls.",
         "4": "Adds threat modeling, abuse detection, and continuous review of security posture."
+      },
+      "followUps": {
+        "default": "obs_q1"
       }
     },
     {
-      "topic": "Observability",
       "id": "obs_q1",
-      "question": "How do you design observability for a new distributed service?",
-      "expected_responses": {
+      "category": "Observability",
+      "difficulty": "foundation",
+      "prompt": "How do you design observability for a new distributed service?",
+      "rubric": {
+        "strong": "Includes SLOs, trace sampling strategy, alert routing, and continuous instrumentation reviews.",
+        "competent": "Defines key service objectives, instrumented signals, and dashboards aligned to outcomes.",
+        "developing": "Mentions logs, metrics, and traces but not how they connect to user journeys."
+      },
+      "scoreDescriptors": {
         "0": "Has no plan for collecting telemetry.",
         "1": "Suggests logging only without structure or correlation.",
         "2": "Mentions logs, metrics, and traces but not how they connect to user journeys.",
         "3": "Defines key service objectives, instrumented signals, and dashboards aligned to outcomes.",
         "4": "Includes SLOs, trace sampling strategy, alert routing, and continuous instrumentation reviews."
+      },
+      "followUps": {
+        "default": "obs_q2"
       }
     },
     {
-      "topic": "Observability",
       "id": "obs_q2",
-      "question": "What is your approach to managing alert fatigue in operations teams?",
-      "expected_responses": {
+      "category": "Observability",
+      "difficulty": "core",
+      "prompt": "What is your approach to managing alert fatigue in operations teams?",
+      "rubric": {
+        "strong": "Combines data-driven tuning, automation, and post-incident feedback loops for continuous improvement.",
+        "competent": "Implements alert reviews, ownership, and prioritization criteria to reduce noise.",
+        "developing": "Mentions tuning thresholds but lacks a systematic method."
+      },
+      "scoreDescriptors": {
         "0": "Unaware that alert fatigue is an issue.",
         "1": "Suggests asking people to pay more attention without process changes.",
         "2": "Mentions tuning thresholds but lacks a systematic method.",
         "3": "Implements alert reviews, ownership, and prioritization criteria to reduce noise.",
         "4": "Combines data-driven tuning, automation, and post-incident feedback loops for continuous improvement."
+      },
+      "followUps": {
+        "default": "obs_q3"
       }
     },
     {
-      "topic": "Observability",
       "id": "obs_q3",
-      "question": "How do you validate that new instrumentation is trustworthy before relying on it?",
-      "expected_responses": {
+      "category": "Observability",
+      "difficulty": "advanced",
+      "prompt": "How do you validate that new instrumentation is trustworthy before relying on it?",
+      "rubric": {
+        "strong": "Adds automated quality gates, regression alerts, and documentation of instrumentation assumptions.",
+        "competent": "Validates with synthetic tests, cross-system comparisons, and peer review.",
+        "developing": "Compares against one baseline metric but not broader consistency checks."
+      },
+      "scoreDescriptors": {
         "0": "Assumes emitted data is accurate without verification.",
         "1": "Checks if dashboards populate but not data quality.",
         "2": "Compares against one baseline metric but not broader consistency checks.",
         "3": "Validates with synthetic tests, cross-system comparisons, and peer review.",
         "4": "Adds automated quality gates, regression alerts, and documentation of instrumentation assumptions."
+      },
+      "followUps": {
+        "default": "devops_q1"
       }
     },
     {
-      "topic": "Automation & DevOps",
       "id": "devops_q1",
-      "question": "How do you decide which deployment tasks to automate first?",
-      "expected_responses": {
+      "category": "Automation & DevOps",
+      "difficulty": "foundation",
+      "prompt": "How do you decide which deployment tasks to automate first?",
+      "rubric": {
+        "strong": "Incorporates metrics, stakeholder input, and iterative feedback to adjust automation roadmap.",
+        "competent": "Ranks tasks by frequency, failure impact, and effort to automate.",
+        "developing": "Targets repetitive tasks but overlooks risk or value."
+      },
+      "scoreDescriptors": {
         "0": "Does not have a framework for automation priorities.",
         "1": "Automates ad hoc tasks without evaluating impact.",
         "2": "Targets repetitive tasks but overlooks risk or value.",
         "3": "Ranks tasks by frequency, failure impact, and effort to automate.",
         "4": "Incorporates metrics, stakeholder input, and iterative feedback to adjust automation roadmap."
+      },
+      "followUps": {
+        "default": "devops_q2"
       }
     },
     {
-      "topic": "Automation & DevOps",
       "id": "devops_q2",
-      "question": "Describe your strategy for building a reliable continuous delivery pipeline.",
-      "expected_responses": {
+      "category": "Automation & DevOps",
+      "difficulty": "core",
+      "prompt": "Describe your strategy for building a reliable continuous delivery pipeline.",
+      "rubric": {
+        "strong": "Adds progressive delivery, policy enforcement, and continuous improvement based on production feedback.",
+        "competent": "Defines gated stages, automated tests, artifact management, and safe deployment strategies.",
+        "developing": "Includes build, test, and deploy stages but lacks rollback or compliance considerations."
+      },
+      "scoreDescriptors": {
         "0": "Has not worked with delivery pipelines before.",
         "1": "Mentions scripting builds without controls or testing stages.",
         "2": "Includes build, test, and deploy stages but lacks rollback or compliance considerations.",
         "3": "Defines gated stages, automated tests, artifact management, and safe deployment strategies.",
         "4": "Adds progressive delivery, policy enforcement, and continuous improvement based on production feedback."
+      },
+      "followUps": {
+        "default": "devops_q3"
       }
     },
     {
-      "topic": "Automation & DevOps",
       "id": "devops_q3",
-      "question": "How do you measure the success of your platform automation efforts?",
-      "expected_responses": {
+      "category": "Automation & DevOps",
+      "difficulty": "advanced",
+      "prompt": "How do you measure the success of your platform automation efforts?",
+      "rubric": {
+        "strong": "Connects platform metrics to business outcomes and uses them to guide future investments.",
+        "competent": "Measures lead time, change failure rate, and mean time to recovery.",
+        "developing": "Tracks deployment frequency but not other outcomes."
+      },
+      "scoreDescriptors": {
         "0": "Cannot articulate success metrics.",
         "1": "Relies on anecdotal feedback without measurement.",
         "2": "Tracks deployment frequency but not other outcomes.",
         "3": "Measures lead time, change failure rate, and mean time to recovery.",
         "4": "Connects platform metrics to business outcomes and uses them to guide future investments."
+      },
+      "followUps": {
+        "default": "arch_q1"
       }
     },
     {
-      "topic": "Application Architecture",
       "id": "arch_q1",
-      "question": "What factors influence your decision between monolithic and modular architectures?",
-      "expected_responses": {
+      "category": "Application Architecture",
+      "difficulty": "foundation",
+      "prompt": "What factors influence your decision between monolithic and modular architectures?",
+      "rubric": {
+        "strong": "Discusses evolutionary architecture, domain boundaries, and migration trade-offs informed by experience.",
+        "competent": "Evaluates coupling, scaling needs, team workflows, and deployment complexity.",
+        "developing": "Mentions team size or deployment frequency but lacks depth."
+      },
+      "scoreDescriptors": {
         "0": "Chooses architectures based on trend without reasoning.",
         "1": "Cites vague benefits without considering context.",
         "2": "Mentions team size or deployment frequency but lacks depth.",
         "3": "Evaluates coupling, scaling needs, team workflows, and deployment complexity.",
         "4": "Discusses evolutionary architecture, domain boundaries, and migration trade-offs informed by experience."
+      },
+      "followUps": {
+        "default": "arch_q2"
       }
     },
     {
-      "topic": "Application Architecture",
       "id": "arch_q2",
-      "question": "How do you ensure resilience when designing inter-service communication?",
-      "expected_responses": {
+      "category": "Application Architecture",
+      "difficulty": "core",
+      "prompt": "How do you ensure resilience when designing inter-service communication?",
+      "rubric": {
+        "strong": "Includes chaos testing, fallback strategies, and alignment with business SLAs.",
+        "competent": "Designs with timeouts, retries, circuit breakers, and idempotent operations.",
+        "developing": "Adds timeouts or circuit breakers but misses observability and backpressure."
+      },
+      "scoreDescriptors": {
         "0": "Does not consider failure modes between services.",
         "1": "Suggests retries without other safeguards.",
         "2": "Adds timeouts or circuit breakers but misses observability and backpressure.",
         "3": "Designs with timeouts, retries, circuit breakers, and idempotent operations.",
         "4": "Includes chaos testing, fallback strategies, and alignment with business SLAs."
+      },
+      "followUps": {
+        "default": "arch_q3"
       }
     },
     {
-      "topic": "Application Architecture",
       "id": "arch_q3",
-      "question": "How do you handle data consistency across services while maintaining performance?",
-      "expected_responses": {
+      "category": "Application Architecture",
+      "difficulty": "advanced",
+      "prompt": "How do you handle data consistency across services while maintaining performance?",
+      "rubric": {
+        "strong": "Designs event-driven workflows, validation, and monitoring tailored to domain risk tolerance.",
+        "competent": "Balances consistency models with compensating actions and clear contracts.",
+        "developing": "Mentions eventual consistency but not how to implement it safely."
+      },
+      "scoreDescriptors": {
         "0": "Unaware of consistency challenges in distributed systems.",
         "1": "Insists on synchronous updates without addressing latency or failures.",
         "2": "Mentions eventual consistency but not how to implement it safely.",
         "3": "Balances consistency models with compensating actions and clear contracts.",
         "4": "Designs event-driven workflows, validation, and monitoring tailored to domain risk tolerance."
+      },
+      "followUps": {
+        "default": "trouble_q1"
       }
     },
     {
-      "topic": "Troubleshooting",
       "id": "trouble_q1",
-      "question": "Walk me through your first steps when a production outage is reported.",
-      "expected_responses": {
+      "category": "Troubleshooting",
+      "difficulty": "foundation",
+      "prompt": "Walk me through your first steps when a production outage is reported.",
+      "rubric": {
+        "strong": "Executes an incident response plan with roles, timelines, and post-incident follow-through.",
+        "competent": "Confirms impact, assembles responders, gathers diagnostics, and documents actions.",
+        "developing": "Checks logs but overlooks communication or coordination."
+      },
+      "scoreDescriptors": {
         "0": "Panics or jumps into fixes without any structure.",
         "1": "Starts debugging immediately without gathering information.",
         "2": "Checks logs but overlooks communication or coordination.",
         "3": "Confirms impact, assembles responders, gathers diagnostics, and documents actions.",
         "4": "Executes an incident response plan with roles, timelines, and post-incident follow-through."
+      },
+      "followUps": {
+        "default": "trouble_q2"
       }
     },
     {
-      "topic": "Troubleshooting",
       "id": "trouble_q2",
-      "question": "How do you differentiate between symptoms and root cause when debugging complex systems?",
-      "expected_responses": {
+      "category": "Troubleshooting",
+      "difficulty": "core",
+      "prompt": "How do you differentiate between symptoms and root cause when debugging complex systems?",
+      "rubric": {
+        "strong": "Combines hypothesis-driven debugging with historical context and postmortem learning.",
+        "competent": "Forms hypotheses, tests them iteratively, and correlates signals across systems.",
+        "developing": "Collects data but lacks a structured investigation approach."
+      },
+      "scoreDescriptors": {
         "0": "Randomly changes configurations without analysis.",
         "1": "Focuses on immediate errors without forming hypotheses.",
         "2": "Collects data but lacks a structured investigation approach.",
         "3": "Forms hypotheses, tests them iteratively, and correlates signals across systems.",
         "4": "Combines hypothesis-driven debugging with historical context and postmortem learning."
+      },
+      "followUps": {
+        "default": "trouble_q3"
       }
     },
     {
-      "topic": "Troubleshooting",
       "id": "trouble_q3",
-      "question": "Describe how you capture and share lessons learned after a major incident.",
-      "expected_responses": {
+      "category": "Troubleshooting",
+      "difficulty": "advanced",
+      "prompt": "Describe how you capture and share lessons learned after a major incident.",
+      "rubric": {
+        "strong": "Facilitates blameless reviews, tracks remediation, and updates runbooks or automation accordingly.",
+        "competent": "Delivers a structured post-incident review with owners and follow-up tasks.",
+        "developing": "Creates a summary but lacks action items or accountability."
+      },
+      "scoreDescriptors": {
         "0": "Does not conduct any follow-up after incidents.",
         "1": "Sends informal updates without documenting findings.",
         "2": "Creates a summary but lacks action items or accountability.",
         "3": "Delivers a structured post-incident review with owners and follow-up tasks.",
         "4": "Facilitates blameless reviews, tracks remediation, and updates runbooks or automation accordingly."
+      },
+      "followUps": {
+        "default": "comm_q1"
       }
     },
     {
-      "topic": "Communication",
       "id": "comm_q1",
-      "question": "How do you tailor technical explanations for audiences with different backgrounds?",
-      "expected_responses": {
+      "category": "Communication",
+      "difficulty": "foundation",
+      "prompt": "How do you tailor technical explanations for audiences with different backgrounds?",
+      "rubric": {
+        "strong": "Crafts narratives, visual aids, and feedback loops that resonate across stakeholder groups.",
+        "competent": "Assesses audience needs, adapts language, and validates comprehension.",
+        "developing": "Adjusts vocabulary but does not check for alignment."
+      },
+      "scoreDescriptors": {
         "0": "Uses the same jargon regardless of the listener.",
         "1": "Simplifies slightly but struggles to gauge understanding.",
         "2": "Adjusts vocabulary but does not check for alignment.",
         "3": "Assesses audience needs, adapts language, and validates comprehension.",
         "4": "Crafts narratives, visual aids, and feedback loops that resonate across stakeholder groups."
+      },
+      "followUps": {
+        "default": "comm_q2"
       }
     },
     {
-      "topic": "Communication",
       "id": "comm_q2",
-      "question": "Describe how you keep stakeholders informed during a long-running initiative.",
-      "expected_responses": {
+      "category": "Communication",
+      "difficulty": "core",
+      "prompt": "Describe how you keep stakeholders informed during a long-running initiative.",
+      "rubric": {
+        "strong": "Aligns updates to stakeholder needs, captures decisions, and provides transparent risk mitigation plans.",
+        "competent": "Maintains a regular cadence with clear status, risks, and next steps.",
+        "developing": "Shares periodic status but misses risk or decision context."
+      },
+      "scoreDescriptors": {
         "0": "Provides updates only when asked.",
         "1": "Sends sporadic updates without structure.",
         "2": "Shares periodic status but misses risk or decision context.",
         "3": "Maintains a regular cadence with clear status, risks, and next steps.",
         "4": "Aligns updates to stakeholder needs, captures decisions, and provides transparent risk mitigation plans."
+      },
+      "followUps": {
+        "default": "comm_q3"
       }
     },
     {
-      "topic": "Communication",
       "id": "comm_q3",
-      "question": "How do you approach giving constructive feedback to a teammate?",
-      "expected_responses": {
+      "category": "Communication",
+      "difficulty": "advanced",
+      "prompt": "How do you approach giving constructive feedback to a teammate?",
+      "rubric": {
+        "strong": "Frames feedback around shared goals, invites dialogue, and supports ongoing growth.",
+        "competent": "Prepares specific feedback, delivers respectfully, and agrees on next steps.",
+        "developing": "Provides examples but does not collaborate on improvements."
+      },
+      "scoreDescriptors": {
         "0": "Avoids feedback or delivers it harshly without preparation.",
         "1": "Gives vague feedback without examples or follow-up.",
         "2": "Provides examples but does not collaborate on improvements.",
         "3": "Prepares specific feedback, delivers respectfully, and agrees on next steps.",
         "4": "Frames feedback around shared goals, invites dialogue, and supports ongoing growth."
+      },
+      "followUps": {
+        "default": null
       }
     }
   ]
