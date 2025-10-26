@@ -10,22 +10,28 @@
   const saveButton = document.getElementById("save-response");
   const resetButton = document.getElementById("reset-session");
   const downloadButton = document.getElementById("download-summary");
+  const topicSelect = document.getElementById("topic-select");
+  const topicError = document.getElementById("topic-error");
   const questionTitle = document.getElementById("question-title");
   const questionCategory = document.getElementById("question-category");
   const notesInput = document.getElementById("notes-input");
   const rubricList = document.getElementById("rubric-content");
   const summaryList = document.getElementById("summary-list");
   const ratingButtons = Array.from(document.querySelectorAll(".rating"));
+  const ALL_TOPICS_VALUE = "__all__";
 
   const panels = [introPanel, questionPanel, summaryPanel];
 
   const state = {
     meta: null,
     questions: new Map(),
+    topics: [],
     currentId: null,
     history: [],
     responses: [],
     selectedRating: null,
+    selectedTopics: [],
+    selectAllTopics: true,
   };
 
   const safeLocalStorage = (() => {
@@ -91,6 +97,113 @@
     });
   }
 
+  function extractTopics(questions = []) {
+    const topics = new Set();
+    questions.forEach((question) => {
+      if (question?.category) {
+        topics.add(question.category);
+      }
+    });
+    return Array.from(topics).sort((a, b) => a.localeCompare(b));
+  }
+
+  function createTopicOption(value, label) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    return option;
+  }
+
+  function syncTopicSelect(selection = { topics: state.selectedTopics, selectAll: state.selectAllTopics }) {
+    if (!topicSelect) return;
+    const { topics, selectAll } = selection;
+
+    Array.from(topicSelect.options).forEach((option) => {
+      if (option.value === ALL_TOPICS_VALUE) {
+        option.selected = selectAll;
+        return;
+      }
+      option.selected = selectAll ? false : topics.includes(option.value);
+    });
+
+    if (selectAll && topicSelect.options.length) {
+      topicSelect.selectedIndex = 0;
+    }
+  }
+
+  function populateTopicSelect(topics, selection = { topics, selectAll: true }) {
+    if (!topicSelect) return;
+    topicSelect.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(createTopicOption(ALL_TOPICS_VALUE, "All Topics"));
+    topics.forEach((topic) => {
+      fragment.appendChild(createTopicOption(topic, topic));
+    });
+
+    topicSelect.appendChild(fragment);
+    syncTopicSelect(selection);
+  }
+
+  function readSelectedTopics() {
+    if (!topicSelect) {
+      return { topics: [], selectAll: false };
+    }
+
+    const selectedOptions = Array.from(topicSelect.selectedOptions);
+    if (!selectedOptions.length) {
+      return { topics: [], selectAll: false };
+    }
+
+    const selectAll = selectedOptions.some((option) => option.value === ALL_TOPICS_VALUE);
+    if (selectAll) {
+      return { topics: [...state.topics], selectAll: true };
+    }
+
+    return {
+      topics: selectedOptions.map((option) => option.value),
+      selectAll: false,
+    };
+  }
+
+  function showTopicError(message) {
+    if (topicError) {
+      topicError.textContent = message;
+      topicError.hidden = false;
+    }
+    if (topicSelect) {
+      topicSelect.setAttribute("aria-invalid", "true");
+    }
+    announce(message);
+  }
+
+  function clearTopicError() {
+    if (topicError) {
+      topicError.textContent = "";
+      topicError.hidden = true;
+    }
+    if (topicSelect) {
+      topicSelect.removeAttribute("aria-invalid");
+    }
+  }
+
+  function handleStartButtonClick() {
+    const selection = readSelectedTopics();
+    if (!selection.topics.length) {
+      showTopicError("Select at least one topic or choose All Topics to begin.");
+      if (topicSelect) {
+        topicSelect.focus();
+      }
+      return;
+    }
+
+    clearTopicError();
+    state.selectedTopics = selection.topics;
+    state.selectAllTopics = selection.selectAll;
+    syncTopicSelect(selection);
+    startInterview({ reset: true });
+  }
+
   function renderQuestion(question) {
     if (!question) {
       renderSummary();
@@ -129,6 +242,8 @@
       currentId: state.currentId,
       history: state.history,
       responses: state.responses,
+      selectedTopics: state.selectedTopics,
+      selectAllTopics: state.selectAllTopics,
     };
     safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }
@@ -181,6 +296,10 @@
     state.history = stored.history || [];
     state.responses = stored.responses || [];
     state.currentId = stored.currentId;
+    state.selectedTopics = Array.isArray(stored.selectedTopics) ? stored.selectedTopics : [...state.topics];
+    state.selectAllTopics = typeof stored.selectAllTopics === "boolean" ? stored.selectAllTopics : true;
+    syncTopicSelect({ topics: state.selectedTopics, selectAll: state.selectAllTopics });
+    clearTopicError();
     renderQuestion(getQuestion(state.currentId));
   }
 
@@ -313,7 +432,11 @@
     state.history = [];
     state.responses = [];
     state.selectedRating = null;
+    state.selectedTopics = [...state.topics];
+    state.selectAllTopics = true;
     notesInput.value = "";
+    syncTopicSelect();
+    clearTopicError();
     clearPersistedState();
     showPanel(introPanel);
     updateResumeButton();
@@ -337,12 +460,24 @@
   }
 
   function registerEvents() {
-    startButton.addEventListener("click", () => startInterview({ reset: true }));
+    startButton.addEventListener("click", handleStartButtonClick);
     resumeButton.addEventListener("click", resumeInterview);
     saveButton.addEventListener("click", handleSave);
     backButton.addEventListener("click", goBack);
     resetButton.addEventListener("click", resetInterview);
     downloadButton.addEventListener("click", downloadSummary);
+
+    if (topicSelect) {
+      topicSelect.addEventListener("change", () => {
+        const selection = readSelectedTopics();
+        state.selectedTopics = selection.topics;
+        state.selectAllTopics = selection.selectAll;
+        if (selection.topics.length) {
+          clearTopicError();
+        }
+        syncTopicSelect(selection);
+      });
+    }
 
     ratingButtons.forEach((btn) => {
       btn.addEventListener("click", () => setRating(btn.dataset.rating));
@@ -385,10 +520,12 @@
     try {
       const response = await fetch("questions.json", { cache: "no-store" });
       const data = await response.json();
+      const questions = Array.isArray(data.questions) ? data.questions : [];
       state.meta = data.meta || {};
-      data.questions.forEach((question) => {
+      questions.forEach((question) => {
         state.questions.set(question.id, question);
       });
+      state.topics = extractTopics(questions);
 
       const persisted = loadPersistedState();
       if (persisted) {
@@ -396,7 +533,19 @@
         state.currentId = persisted.currentId || state.meta.startQuestion;
         state.history = persisted.history || [];
         state.responses = persisted.responses || [];
+        state.selectedTopics = Array.isArray(persisted.selectedTopics)
+          ? [...persisted.selectedTopics]
+          : [...state.topics];
+        state.selectAllTopics = typeof persisted.selectAllTopics === "boolean" ? persisted.selectAllTopics : true;
+      } else {
+        state.selectedTopics = [...state.topics];
+        state.selectAllTopics = true;
       }
+
+      populateTopicSelect(state.topics, {
+        topics: state.selectedTopics,
+        selectAll: state.selectAllTopics,
+      });
 
       updateResumeButton();
     } catch (error) {
