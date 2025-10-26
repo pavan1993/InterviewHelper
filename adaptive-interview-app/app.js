@@ -117,6 +117,9 @@
 
   function recordHistoryVisit(id) {
     if (!id) return;
+    if (state.history.length === 0 && id === state.meta?.startQuestion) {
+      return;
+    }
     const lastId = state.history[state.history.length - 1];
     if (lastId === id) return;
     state.history.push(id);
@@ -250,14 +253,22 @@
     }
     state.history.pop();
     const previousId = state.history[state.history.length - 1];
-    state.currentId = previousId ?? state.meta?.startQuestion ?? null;
-    persistState();
-    const question = getQuestion(state.currentId);
-    if (question) {
-      renderQuestion(question);
-    } else {
+    if (!previousId) {
+      state.currentId = state.meta?.startQuestion ?? null;
+      persistState();
       showPanel(introPanel);
+      return;
     }
+    const question = getQuestion(previousId);
+    if (!question) {
+      state.currentId = state.meta?.startQuestion ?? null;
+      persistState();
+      showPanel(introPanel);
+      return;
+    }
+    state.currentId = previousId;
+    persistState();
+    renderQuestion(question);
   }
 
   function renderSummary() {
