@@ -41,6 +41,20 @@
                 placeholder="e.g., Senior Platform Engineer"
               />
             </label>
+            <label for="topic-select" class="form-field">
+              Topic focus
+              <select
+                id="topic-select"
+                name="topics"
+                multiple
+                size="5"
+                aria-describedby="topic-hint topic-error"
+              >
+                <option value="__all__" selected>All Topics</option>
+              </select>
+              <p id="topic-hint" class="field-hint">Hold Ctrl (or Cmd) to choose multiple topics.</p>
+              <p id="topic-error" class="field-error" role="alert" hidden></p>
+            </label>
             <label for="difficulty" class="form-field">
               Target difficulty
               <select id="difficulty" name="difficulty">

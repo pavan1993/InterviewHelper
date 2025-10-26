@@ -68,6 +68,39 @@ body.dark {
   display: none;
 }
 
+.setup-form .form-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.form-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  font: inherit;
+}
+
+.field-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--danger);
+}
+
 .instructions {
   padding-left: 1.2rem;
   color: var(--text-muted);
