@@ -97,6 +97,8 @@
       return;
     }
 
+    recordHistoryVisit(question.id);
+
     questionTitle.textContent = question.prompt;
     questionCategory.textContent = `${question.category} • ${capitalize(question.difficulty)}`;
     buildRubric(question.rubric);
@@ -111,6 +113,13 @@
     }
 
     showPanel(questionPanel);
+  }
+
+  function recordHistoryVisit(id) {
+    if (!id) return;
+    const lastId = state.history[state.history.length - 1];
+    if (lastId === id) return;
+    state.history.push(id);
   }
 
   function persistState() {
@@ -206,26 +215,27 @@
       state.responses.push(payload);
     }
 
-    if (!state.history.includes(question.id)) {
-      state.history.push(question.id);
-    }
-
     state.currentId = nextId;
-    persistState();
 
     if (!nextId) {
+      persistState();
       renderSummary();
-    } else {
-      const nextQuestion = getQuestion(nextId);
-      if (!nextQuestion) {
-        console.warn(`Question with id "${nextId}" missing. Ending interview.`);
-        renderSummary();
-      } else {
-        resetRating();
-        notesInput.value = "";
-        renderQuestion(nextQuestion);
-      }
+      return;
     }
+
+    const nextQuestion = getQuestion(nextId);
+    if (!nextQuestion) {
+      console.warn(`Question with id "${nextId}" missing. Ending interview.`);
+      state.currentId = null;
+      persistState();
+      renderSummary();
+      return;
+    }
+
+    resetRating();
+    notesInput.value = "";
+    renderQuestion(nextQuestion);
+    persistState();
   }
 
   function resolveNextQuestion(question, rating) {
