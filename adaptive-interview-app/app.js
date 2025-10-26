@@ -120,6 +120,14 @@
     if (state.history.length === 0 && id === state.meta?.startQuestion) {
       return;
     }
+    const startId = state.meta?.startQuestion ?? null;
+    if (startId && id !== startId && !state.history.includes(startId)) {
+      if (state.history.length === 0) {
+        state.history.push(startId);
+      } else {
+        state.history.unshift(startId);
+      }
+    }
     const lastId = state.history[state.history.length - 1];
     if (lastId === id) return;
     state.history.push(id);
