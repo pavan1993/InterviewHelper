@@ -274,6 +274,85 @@ textarea {
   min-height: 120px;
 }
 
+.summary-overview,
+.summary-topics,
+.summary-record {
+  margin-top: 1.5rem;
+}
+
+.summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.summary-metrics div {
+  background: rgba(0, 87, 216, 0.06);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.summary-metrics dt {
+  margin: 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.summary-metrics dd {
+  margin: 0.4rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.summary-topic-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.summary-topic-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(0, 87, 216, 0.04);
+}
+
+.summary-topic-label {
+  font-weight: 600;
+}
+
+.summary-topic-score {
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-json-hint {
+  margin: 0.5rem 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+#summary-json {
+  width: 100%;
+  min-height: 180px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: rgba(15, 23, 42, 0.03);
+  padding: 1rem;
+  font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+
 .summary-list {
   list-style: none;
   padding: 0;
@@ -330,5 +409,9 @@ textarea {
 
   .grade-option {
     min-height: 90px;
+  }
+
+  .summary-metrics {
+    grid-template-columns: 1fr;
   }
 }

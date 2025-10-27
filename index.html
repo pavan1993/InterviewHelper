@@ -169,22 +169,31 @@
             Review outcomes by topic, sanity-check calibration, then export your notes to share with the committee.
           </p>
         </header>
-        <section class="summary-overview" aria-label="Score snapshot">
-          <h3>Score snapshot</h3>
+        <section class="summary-overview" aria-label="Session metrics">
+          <h3>Session metrics</h3>
           <dl class="summary-metrics">
             <div>
-              <dt>Total questions rated</dt>
-              <dd id="summary-count">0</dd>
+              <dt>Total questions answered</dt>
+              <dd id="summary-total">0</dd>
             </div>
             <div>
-              <dt>Topics covered</dt>
-              <dd id="summary-topics">0</dd>
-            </div>
-            <div>
-              <dt>Average rating</dt>
+              <dt>Average score (0–4)</dt>
               <dd id="summary-average">—</dd>
             </div>
+            <div>
+              <dt>Consistency (last 5)</dt>
+              <dd id="summary-consistency">—</dd>
+            </div>
           </dl>
+        </section>
+        <section class="summary-topics" aria-label="Average score per topic">
+          <h3>Average score per topic</h3>
+          <ul id="summary-topic-averages" class="summary-topic-list"></ul>
+        </section>
+        <section class="summary-record" aria-label="Session record">
+          <h3>Session JSON record</h3>
+          <p class="summary-json-hint">This snapshot updates automatically and is read-only.</p>
+          <textarea id="summary-json" readonly spellcheck="false" aria-label="Session JSON"></textarea>
         </section>
         <ul id="summary-list" class="summary-list"></ul>
         <section class="summary-next-steps">
@@ -196,8 +205,8 @@
           </ol>
         </section>
         <div class="actions">
-          <button id="download-summary" class="secondary">Download summary</button>
-          <button id="reset-session" class="danger">Reset interview</button>
+          <button id="export-json" class="secondary">Export JSON</button>
+          <button id="restart-session" class="danger">Restart</button>
         </div>
       </section>
     </main>
