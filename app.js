@@ -6,10 +6,14 @@
   const summaryPanel = document.getElementById("summary-panel");
   const startButton = document.getElementById("start-interview");
   const resumeButton = document.getElementById("resume-interview");
+  const resumeHint = document.getElementById("resume-hint");
   const backButton = document.getElementById("back-track");
   const nextButton = document.getElementById("next-question");
   const restartButton = document.getElementById("restart-session");
   const exportJsonButton = document.getElementById("export-json");
+  const settingsToggle = document.getElementById("settings-toggle");
+  const settingsMenu = document.getElementById("settings-menu");
+  const clearSavedSessionButton = document.getElementById("clear-saved-session");
   const topicSelect = document.getElementById("topic-select");
   const topicError = document.getElementById("topic-error");
   const questionTitle = document.getElementById("question-title");
@@ -38,6 +42,7 @@
     selectedGrade: null,
     selectedTopics: [],
     selectAllTopics: true,
+    lastSavedAt: null,
   };
 
   const safeLocalStorage = (() => {
@@ -307,7 +312,10 @@
   }
 
   function persistState() {
-    if (!safeLocalStorage) return;
+    if (!safeLocalStorage) {
+      updateResumeAvailability(null);
+      return null;
+    }
     const payload = {
       meta: state.meta,
       currentId: state.currentId,
@@ -315,8 +323,12 @@
       responses: state.responses,
       selectedTopics: state.selectedTopics,
       selectAllTopics: state.selectAllTopics,
+      lastSavedAt: new Date().toISOString(),
     };
+    state.lastSavedAt = payload.lastSavedAt;
     safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    updateResumeAvailability(payload);
+    return payload;
   }
 
   function loadPersistedState() {
@@ -332,8 +344,14 @@
   }
 
   function clearPersistedState() {
-    if (!safeLocalStorage) return;
+    if (!safeLocalStorage) {
+      state.lastSavedAt = null;
+      updateResumeAvailability(null);
+      return;
+    }
     safeLocalStorage.removeItem(STORAGE_KEY);
+    state.lastSavedAt = null;
+    updateResumeAvailability(null);
   }
 
   function startInterview({ reset = false } = {}) {
@@ -361,6 +379,7 @@
       announce("Questions are still loading. Try again in a moment.");
       return;
     }
+    setSettingsMenuOpen(false);
     const stored = loadPersistedState();
     if (!stored) return;
     state.meta = stored.meta;
@@ -369,8 +388,10 @@
     state.currentId = stored.currentId;
     state.selectedTopics = Array.isArray(stored.selectedTopics) ? stored.selectedTopics : [...state.topics];
     state.selectAllTopics = typeof stored.selectAllTopics === "boolean" ? stored.selectAllTopics : true;
+    state.lastSavedAt = stored.lastSavedAt || null;
     syncTopicSelect({ topics: state.selectedTopics, selectAll: state.selectAllTopics });
     clearTopicError();
+    updateResumeAvailability(stored);
     renderQuestion(getQuestion(state.currentId));
   }
 
@@ -650,6 +671,7 @@
     state.selectedGrade = null;
     state.selectedTopics = [...state.topics];
     state.selectAllTopics = true;
+    state.lastSavedAt = null;
     lastSessionSnapshot = null;
     if (notesInput) {
       notesInput.value = "";
@@ -658,7 +680,6 @@
     clearTopicError();
     clearPersistedState();
     showPanel(introPanel);
-    updateResumeButton();
   }
 
   function announce(message) {
@@ -673,14 +694,89 @@
     liveRegion.textContent = message;
   }
 
-  function updateResumeButton() {
-    const hasSession = Boolean(loadPersistedState());
-    resumeButton.hidden = !hasSession;
+  function hasStoredProgress(snapshot) {
+    if (!snapshot) return false;
+    const hasResponses = Array.isArray(snapshot.responses) && snapshot.responses.length > 0;
+    return hasResponses || Boolean(snapshot.currentId);
+  }
+
+  function formatSavedTimestamp(timestamp) {
+    if (!timestamp) return null;
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    try {
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(date);
+    } catch (error) {
+      console.warn("Unable to format saved timestamp", error);
+      return null;
+    }
+  }
+
+  function updateResumeAvailability(snapshot = loadPersistedState()) {
+    const hasSession = hasStoredProgress(snapshot);
+    if (resumeButton) {
+      resumeButton.hidden = !hasSession;
+    }
+    if (resumeHint) {
+      if (hasSession) {
+        const formatted = formatSavedTimestamp(snapshot?.lastSavedAt);
+        const suffix = formatted
+          ? ` Resume where you left off (last saved ${formatted}) or start a new session.`
+          : " Resume where you left off or start a new session.";
+        resumeHint.hidden = false;
+        resumeHint.textContent = "";
+        const strong = document.createElement("strong");
+        strong.textContent = "Saved progress found.";
+        resumeHint.append(strong, document.createTextNode(suffix));
+      } else {
+        resumeHint.hidden = true;
+        resumeHint.textContent = "";
+      }
+    }
+    return hasSession;
+  }
+
+  const handleSettingsDocumentClick = (event) => {
+    if (!settingsMenu || settingsMenu.hidden) return;
+    if (settingsMenu.contains(event.target) || (settingsToggle && settingsToggle.contains(event.target))) {
+      return;
+    }
+    setSettingsMenuOpen(false);
+  };
+
+  const handleSettingsKeydown = (event) => {
+    if (event.key === "Escape") {
+      setSettingsMenuOpen(false);
+      if (settingsToggle) {
+        settingsToggle.focus();
+      }
+    }
+  };
+
+  function setSettingsMenuOpen(open) {
+    if (!settingsMenu || !settingsToggle) return;
+    const shouldOpen = Boolean(open);
+    settingsMenu.hidden = !shouldOpen;
+    settingsToggle.setAttribute("aria-expanded", String(shouldOpen));
+    if (shouldOpen) {
+      document.addEventListener("click", handleSettingsDocumentClick);
+      document.addEventListener("keydown", handleSettingsKeydown);
+    } else {
+      document.removeEventListener("click", handleSettingsDocumentClick);
+      document.removeEventListener("keydown", handleSettingsKeydown);
+    }
   }
 
   function registerEvents() {
     startButton.addEventListener("click", handleStartButtonClick);
-    resumeButton.addEventListener("click", resumeInterview);
+    if (resumeButton) {
+      resumeButton.addEventListener("click", resumeInterview);
+    }
     if (nextButton) {
       nextButton.addEventListener("click", handleNext);
     }
@@ -690,6 +786,21 @@
     }
     if (exportJsonButton) {
       exportJsonButton.addEventListener("click", exportSessionJson);
+    }
+
+    if (settingsToggle && settingsMenu) {
+      settingsToggle.addEventListener("click", () => {
+        const shouldOpen = settingsMenu.hidden;
+        setSettingsMenuOpen(shouldOpen);
+      });
+    }
+
+    if (clearSavedSessionButton) {
+      clearSavedSessionButton.addEventListener("click", () => {
+        clearPersistedState();
+        announce("Saved session cleared.");
+        setSettingsMenuOpen(false);
+      });
     }
 
     if (topicSelect) {
@@ -730,7 +841,7 @@
 
   async function bootstrap() {
     registerEvents();
-    updateResumeButton();
+    updateResumeAvailability();
 
     try {
       const response = await fetch("questions.json", { cache: "no-store" });
@@ -752,9 +863,11 @@
           ? [...persisted.selectedTopics]
           : [...state.topics];
         state.selectAllTopics = typeof persisted.selectAllTopics === "boolean" ? persisted.selectAllTopics : true;
+        state.lastSavedAt = persisted.lastSavedAt || null;
       } else {
         state.selectedTopics = [...state.topics];
         state.selectAllTopics = true;
+        state.lastSavedAt = null;
       }
 
       populateTopicSelect(state.topics, {
@@ -762,7 +875,7 @@
         selectAll: state.selectAllTopics,
       });
 
-      updateResumeButton();
+      updateResumeAvailability(persisted);
     } catch (error) {
       console.error("Failed to load questions", error);
       announce("Unable to load questions. Check your connection or file path.");

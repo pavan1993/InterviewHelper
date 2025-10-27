@@ -8,7 +8,29 @@
   </head>
   <body>
     <header class="app-header">
-      <h1>Adaptive Interview Facilitator</h1>
+      <div class="header-row">
+        <div class="header-titles">
+          <h1>Adaptive Interview Facilitator</h1>
+        </div>
+        <div class="header-actions">
+          <div class="settings" id="settings">
+            <button
+              type="button"
+              id="settings-toggle"
+              class="ghost"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Settings
+            </button>
+            <div id="settings-menu" class="settings-menu" role="menu" hidden>
+              <button type="button" id="clear-saved-session" role="menuitem" class="menu-item">
+                Clear saved session
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <p class="tagline">Guide structured, fair interviews with adaptive questioning.</p>
     </header>
 
@@ -76,9 +98,10 @@
             </label>
           </fieldset>
           <div class="actions">
-            <button type="button" id="start-interview" class="primary">Start interview</button>
+            <button type="button" id="start-interview" class="primary">Start new session</button>
             <button type="button" id="resume-interview" class="secondary" hidden>Resume last session</button>
           </div>
+          <p id="resume-hint" class="resume-hint" hidden role="status"></p>
         </form>
         <aside class="panel-note" aria-label="What you can do">
           <h3>What this workspace includes</h3>
