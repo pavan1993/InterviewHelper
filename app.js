@@ -8,8 +8,8 @@
   const resumeButton = document.getElementById("resume-interview");
   const backButton = document.getElementById("back-track");
   const nextButton = document.getElementById("next-question");
-  const resetButton = document.getElementById("reset-session");
-  const downloadButton = document.getElementById("download-summary");
+  const restartButton = document.getElementById("restart-session");
+  const exportJsonButton = document.getElementById("export-json");
   const topicSelect = document.getElementById("topic-select");
   const topicError = document.getElementById("topic-error");
   const questionTitle = document.getElementById("question-title");
@@ -17,8 +17,14 @@
   const notesInput = document.getElementById("notes-input");
   const expectedList = document.getElementById("expected-responses");
   const summaryList = document.getElementById("summary-list");
+  const summaryTotal = document.getElementById("summary-total");
+  const summaryAverage = document.getElementById("summary-average");
+  const summaryConsistency = document.getElementById("summary-consistency");
+  const summaryTopicList = document.getElementById("summary-topic-averages");
+  const summaryJson = document.getElementById("summary-json");
   const gradeButtons = Array.from(document.querySelectorAll(".grade-option"));
   const ALL_TOPICS_VALUE = "__all__";
+  const CONSISTENCY_WINDOW = 5;
 
   const panels = [introPanel, questionPanel, summaryPanel];
 
@@ -448,6 +454,107 @@
     }
   }
 
+  let lastSessionSnapshot = null;
+
+  function calculateSummaryMetrics(responses = []) {
+    const gradedResponses = responses
+      .map((entry) => ({ ...entry, grade: extractGradeValue(entry) }))
+      .filter((entry) => entry.grade !== null && !Number.isNaN(entry.grade));
+
+    const totalQuestions = gradedResponses.length;
+    const averageScore = totalQuestions
+      ? gradedResponses.reduce((sum, entry) => sum + entry.grade, 0) / totalQuestions
+      : null;
+
+    const topicMap = new Map();
+    gradedResponses.forEach((entry) => {
+      const topic = entry.topic || entry.category || "Uncategorized";
+      const record = topicMap.get(topic) || { total: 0, count: 0 };
+      record.total += entry.grade;
+      record.count += 1;
+      topicMap.set(topic, record);
+    });
+
+    const topicAverages = Array.from(topicMap.entries())
+      .map(([topic, { total, count }]) => ({
+        topic,
+        average: count ? total / count : null,
+      }))
+      .sort((a, b) => a.topic.localeCompare(b.topic));
+
+    const consistencyGrades = gradedResponses
+      .slice(-CONSISTENCY_WINDOW)
+      .map((entry) => entry.grade)
+      .filter((grade) => grade !== null && !Number.isNaN(grade));
+
+    let consistency = {
+      value: null,
+      label: "Not enough data",
+      count: consistencyGrades.length,
+    };
+
+    if (consistencyGrades.length >= 2) {
+      const mean = consistencyGrades.reduce((sum, grade) => sum + grade, 0) / consistencyGrades.length;
+      const variance =
+        consistencyGrades.reduce((sum, grade) => sum + (grade - mean) ** 2, 0) / consistencyGrades.length;
+      const stdDev = Math.sqrt(variance);
+      consistency = {
+        value: stdDev,
+        label: interpretConsistency(stdDev),
+        count: consistencyGrades.length,
+      };
+    }
+
+    return {
+      totalQuestions,
+      averageScore,
+      topicAverages,
+      consistency,
+    };
+  }
+
+  function interpretConsistency(stdDev) {
+    if (stdDev === null || Number.isNaN(stdDev)) {
+      return "Not enough data";
+    }
+    if (stdDev < 0.4) {
+      return "Highly consistent";
+    }
+    if (stdDev < 0.8) {
+      return "Moderately consistent";
+    }
+    return "Variable scoring";
+  }
+
+  function formatScore(value) {
+    if (value === null || Number.isNaN(value)) {
+      return "—";
+    }
+    return value.toFixed(2);
+  }
+
+  function buildSessionSnapshot(metrics) {
+    return {
+      generatedAt: new Date().toISOString(),
+      meta: state.meta,
+      history: state.history,
+      selectedTopics: state.selectedTopics,
+      selectAllTopics: state.selectAllTopics,
+      metrics: {
+        totalQuestions: metrics.totalQuestions,
+        averageScore: metrics.averageScore,
+        consistency: {
+          value: metrics.consistency.value,
+          label: metrics.consistency.label,
+          sampleSize: metrics.consistency.count,
+          window: CONSISTENCY_WINDOW,
+        },
+        topicAverages: metrics.topicAverages,
+      },
+      responses: state.responses,
+    };
+  }
+
   function renderSummary() {
     summaryList.innerHTML = "";
     const template = document.getElementById("summary-item-template");
@@ -469,30 +576,67 @@
       });
     }
 
+    const metrics = calculateSummaryMetrics(state.responses);
+
+    if (summaryTotal) {
+      summaryTotal.textContent = String(metrics.totalQuestions);
+    }
+
+    if (summaryAverage) {
+      summaryAverage.textContent = formatScore(metrics.averageScore);
+    }
+
+    if (summaryConsistency) {
+      const valueText = formatScore(metrics.consistency.value);
+      if (metrics.consistency.value === null || metrics.consistency.count < 2) {
+        summaryConsistency.textContent = metrics.consistency.label;
+      } else {
+        summaryConsistency.textContent = `${valueText} • ${metrics.consistency.label}`;
+      }
+    }
+
+    if (summaryTopicList) {
+      summaryTopicList.innerHTML = "";
+      if (!metrics.topicAverages.length) {
+        const emptyTopic = document.createElement("li");
+        emptyTopic.textContent = "No graded topics yet.";
+        summaryTopicList.appendChild(emptyTopic);
+      } else {
+        metrics.topicAverages.forEach((item) => {
+          const li = document.createElement("li");
+          const topicLabel = document.createElement("span");
+          topicLabel.className = "summary-topic-label";
+          topicLabel.textContent = item.topic;
+          const topicScore = document.createElement("span");
+          topicScore.className = "summary-topic-score";
+          topicScore.textContent = formatScore(item.average);
+          li.append(topicLabel, topicScore);
+          summaryTopicList.appendChild(li);
+        });
+      }
+    }
+
+    const snapshot = buildSessionSnapshot(metrics);
+    lastSessionSnapshot = snapshot;
+    if (summaryJson) {
+      summaryJson.value = JSON.stringify(snapshot, null, 2);
+      summaryJson.scrollTop = 0;
+    }
+
     persistState();
     showPanel(summaryPanel);
   }
 
-  function downloadSummary() {
-    if (!state.responses.length) return;
-    const lines = [
-      `Adaptive Interview Summary - ${new Date().toLocaleString()}`,
-      "",
-      ...state.responses.map((entry, index) => {
-        return [
-          `${index + 1}. ${entry.prompt} (${entry.topic ?? entry.category}, ${capitalize(entry.difficulty)})`,
-          `   Grade: ${entry.grade !== null && entry.grade !== undefined && !Number.isNaN(entry.grade) ? entry.grade : "—"}`,
-          `   Notes: ${entry.notes || "(none)"}`,
-          "",
-        ].join("\n");
-      }),
-    ];
-
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+  function exportSessionJson() {
+    if (!lastSessionSnapshot) {
+      const metrics = calculateSummaryMetrics(state.responses);
+      lastSessionSnapshot = buildSessionSnapshot(metrics);
+    }
+    const blob = new Blob([JSON.stringify(lastSessionSnapshot, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "adaptive-interview-summary.txt";
+    link.download = `adaptive-interview-session-${new Date().toISOString()}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -506,6 +650,7 @@
     state.selectedGrade = null;
     state.selectedTopics = [...state.topics];
     state.selectAllTopics = true;
+    lastSessionSnapshot = null;
     if (notesInput) {
       notesInput.value = "";
     }
@@ -540,8 +685,12 @@
       nextButton.addEventListener("click", handleNext);
     }
     backButton.addEventListener("click", goBack);
-    resetButton.addEventListener("click", resetInterview);
-    downloadButton.addEventListener("click", downloadSummary);
+    if (restartButton) {
+      restartButton.addEventListener("click", resetInterview);
+    }
+    if (exportJsonButton) {
+      exportJsonButton.addEventListener("click", exportSessionJson);
+    }
 
     if (topicSelect) {
       topicSelect.addEventListener("change", () => {
